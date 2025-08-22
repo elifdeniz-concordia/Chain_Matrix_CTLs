@@ -52,6 +52,7 @@ make_overloadable "%" `:A-> B-> B`;;
  overload_interface("%",`(cvector_mul):complex->complex^N->complex^N`);;
 
 let cvector_mul = new_definition
+
   `((%):complex->complex^N->complex^N) c x = lambda i. c * x$i`;;
 
 
@@ -239,7 +240,8 @@ let COLUMNVECTOR_2X1_ADD_2 = prove
 
 
 let COLUMNVECTOR_2X1_ADD_4 = prove
- (`columnvector_2x1 (vector [(b1:complex->complex) z; b2 z]) + columnvector_2x1 (vector [c1 z; c2 z]) + columnvector_2x1 (vector [d1 z; d2 z]) + columnvector_2x1 (vector [e1 z; e2 z]) =
+ (`columnvector_2x1 (vector [(b1:complex->complex) z; b2 z]) + columnvector_2x1 (vector [c1 z; c2 z]) + 
+   columnvector_2x1 (vector [d1 z; d2 z]) + columnvector_2x1 (vector [e1 z; e2 z]) =
    columnvector_2x1 (vector [b1 z + c1 z + d1 z + e1 z; b2 z + c2 z + d2 z + e2 z])`,
   REWRITE_TAC [columnvector_2x1; bvector_add] THEN BMV_ADD_SIMP_TAC[bvector_add;BVECTOR_ADD_COMPONENT]);;
 
@@ -248,8 +250,6 @@ let COLUMNVECTOR_2X1_ADD_4 = prove
 (* ------------------------------------------------------------------------- *)
 (*                         Some Useful Theorems                              *)
 (* ------------------------------------------------------------------------- *)
-
-
 
 let BMATRIX_BVECTOR_MUL = prove (`!A B C D a1 a2 b1 b2. bmat2x2 A B C D ** bvec2x1_new a1 a2 b1 b2 = 
    vector[A ** columnvector_2x1 (vector[a1;a2]:(complex^2)) +
@@ -349,7 +349,8 @@ REPEAT GEN_TAC THEN CCOMMON_TAC[bvec;CVECTOR2_EQ]);;
 
 (*===========================================================================*)
 (*                       Chain Matrix Model of                               *)
-(*                     Coupled Transmission Lines                            *)                                      (*===========================================================================*)
+(*                     Coupled Transmission Lines                            *)                                      
+(*===========================================================================*)
 
 let cmat2x2 = new_definition
   `cmat2x2 A B C D :complex^2^2 = vector[vector[A;B]; vector[C;D]]`;;
@@ -519,21 +520,18 @@ let chain_left_vec = new_definition
                                                 columnvector_2x1 (vector [II1 z; II2 z]):complex^1^2]`;;
 
 let chain_left_vector = new_definition
-  `chain_left_vector (V1:complex->complex) (V2:complex->complex) (II1:complex->complex) (II2:complex->complex) z =
-   bvec V1 V2 II1 II2 z`;;
+  `chain_left_vector (V1:complex->complex) (V2:complex->complex) 
+        (II1:complex->complex) (II2:complex->complex) z =
+                                       bvec V1 V2 II1 II2 z`;;
 
 
 (*============================   Definition of Right 4x1 Vector  ========================================== *)
-
 
 let chain_right_vector = new_definition
   `chain_right_vector (V3:complex->complex) (V4:complex->complex) (II3:complex->complex) (II4:complex->complex) z =
    bvec V3 V4 (\z. --(II3 z)) (\z. --(II4 z)) z`;;
 
-
-
 (* ================ Definition of Full 4x4 Chain Matrix by Combining Submatrices ========================*)
-
 
 let nchain_block = new_definition `
   nchain_block theta_e theta_o Z0e Z0o Y0e Y0o =
@@ -573,10 +571,7 @@ e (SUBGOAL_THEN `(vector
    ii * Y0e * Cx (sin theta_e) * Cx (&1 / &2) * (V3 z + V4 z) +
    Cx (cos theta_e) * Cx (&1 / &2) * (II3 z + II4 z)])` ASSUME_TAC);;
 
-
-
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
-
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
 e (BMV_ADD_SIMP_TAC[]);;
 e (STRIP_TAC);;
@@ -639,13 +634,8 @@ e (SIMPLE_COMPLEX_ARITH_TAC);;
 e (SIMP_TAC[]);;
 e (ONCE_ASM_REWRITE_TAC[]);;
 e (POP_ASSUM_LIST (K ALL_TAC));;
-
-
-
 e(SIMP_TAC[COLVEC2_EQ]);;
-
 e (EQ_TAC);;
-
 e (ASSERT_TAC `(Cx (&1 / &2) * (V1 z + V2 z) =
   Cx (cos theta_e) * Cx (&1 / &2) * ((V3:complex->complex) z + V4 z) +
   ii * Z0e * Cx (sin theta_e) * Cx (&1 / &2) * (II3 z + II4 z)) <=> ((V1 z + V2 z) =
@@ -697,7 +687,6 @@ ii * Z0e * Cx (sin theta_e) * (II3 z + II4 z) +
 Cx (cos theta_o) * (V3 z - V4 z) -
 ii * Z0o * Cx (sin theta_o) * (II3 z - II4 z))` ASSUME_TAC);;
 
-
 e (POP_ASSUM MP_TAC);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
 
@@ -713,11 +702,8 @@ e (ASSERT_TAC `((V1:complex->complex) z + V2 z) - (V1 z - V2 z) =
    Cx (cos theta_e) * (V3 z + V4 z) + ii * Z0e * Cx (sin theta_e) * (II3 z + II4 z) -
    Cx (cos theta_o) * (V3 z - V4 z) + ii * Z0o * Cx (sin theta_o) * (II3 z - II4 z)`);;
 
-
-
 e (ASM_SIMP_TAC[]);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
-
 
 e (SUBGOAL_THEN `(Cx (&2) * (V2:complex->complex) z = Cx (cos theta_e) * (V3 z + V4 z) +
 ii * Z0e * Cx (sin theta_e) * (II3 z + II4 z) -
@@ -726,7 +712,6 @@ ii * Z0o * Cx (sin theta_o) * (II3 z - II4 z))` ASSUME_TAC);;
 
 e (POP_ASSUM MP_TAC);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
-
 
 e (SUBGOAL_THEN `(V2:complex->complex) z = (Cx (&1) / Cx (&2)) * (Cx (cos theta_e) - Cx (cos theta_o)) * V3 z + 
                   (Cx (&1) / Cx (&2)) * (Cx (cos theta_e) + Cx (cos theta_o)) * V4 z + 
@@ -753,23 +738,21 @@ Cx (cos theta_o) * (II3 z - II4 z))` ASSUME_TAC);;
 e (POP_ASSUM MP_TAC);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
 
-
-
-e (SUBGOAL_THEN `(II1:complex->complex) z = (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) + Y0o * Cx (sin theta_o)) * V3 z + (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) - Y0o * Cx (sin theta_o)) * V4 z + Cx (&1) / Cx (&2) * (Cx (cos theta_e) - Cx (cos theta_o)) * II3 z + Cx (&1) / Cx (&2) * (Cx (cos theta_e) + Cx (cos theta_o)) * (II4:complex->complex) z` ASSUME_TAC);;
-
+e (SUBGOAL_THEN `(II1:complex->complex) z = (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) +
+Y0o * Cx (sin theta_o)) * V3 z + (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) - Y0o * Cx (sin theta_o)) * V4 z +
+Cx (&1) / Cx (&2) * (Cx (cos theta_e) - Cx (cos theta_o)) * II3 z + Cx (&1) / Cx (&2) * (Cx (cos theta_e) +
+Cx (cos theta_o)) * (II4:complex->complex) z` ASSUME_TAC);;
 
 e (POP_ASSUM MP_TAC);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
 
-
- e (ASSERT_TAC `((II1:complex->complex) z + II2 z) - (II1 z - II2 z) =
+e (ASSERT_TAC `((II1:complex->complex) z + II2 z) - (II1 z - II2 z) =
   ii * Y0e * Cx (sin theta_e) * (V3 z + V4 z) +
       Cx (cos theta_e) * (II3 z + II4 z) -  (ii * Y0o * Cx (sin theta_o) * (V3 z - V4 z) -
       Cx (cos theta_o) * (II3 z - II4 z))`);;
 
 e (ASM_SIMP_TAC[]);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
-
 
 e (SUBGOAL_THEN `(Cx (&2) * (II2:complex->complex) z = ii * Y0e * Cx (sin theta_e) * (V3 z + V4 z) +
 Cx (cos theta_e) * (II3 z + II4 z) - ii * Y0o * Cx (sin theta_o) * (V3 z - V4 z) +
@@ -778,15 +761,13 @@ Cx (cos theta_o) * (II3 z - II4 z))` ASSUME_TAC);;
 e (POP_ASSUM MP_TAC);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
 
-
-e (SUBGOAL_THEN `(II2:complex->complex) z = (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) - Y0o * Cx (sin theta_o)) * V3 z + (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) + Y0o * Cx (sin theta_o)) * V4 z + Cx (&1) / Cx (&2) * (Cx (cos theta_e) + Cx (cos theta_o)) * II3 z + Cx (&1) / Cx (&2) * (Cx (cos theta_e) - Cx (cos theta_o)) * II4 z` ASSUME_TAC);;
-
+e (SUBGOAL_THEN `(II2:complex->complex) z = (ii / Cx (&2)) * (Y0e * Cx (sin theta_e) - Y0o * Cx (sin theta_o)) * V3 z +
+(ii / Cx (&2)) * (Y0e * Cx (sin theta_e) + Y0o * Cx (sin theta_o)) * V4 z + Cx (&1) / Cx (&2) * (Cx (cos theta_e) + Cx (cos theta_o)) * II3 z + 
+Cx (&1) / Cx (&2) * (Cx (cos theta_e) - Cx (cos theta_o)) * II4 z` ASSUME_TAC);;
 
 e (POP_ASSUM MP_TAC);;
 e (SIMPLE_COMPLEX_ARITH_TAC);;
 
-
-
 e (SUBGOAL_THEN
   `vector
      [vector [matA_sub theta_e theta_o; nmatB_sub theta_e theta_o Z0e Z0o];
@@ -801,14 +782,9 @@ e (SUBGOAL_THEN
       nmatD_sub theta_e theta_o ** columnvector_2x1 (vector [--II3 z; --II4 z])]`
   ASSUME_TAC);;
 
-
 e (BMV_ADD_SIMP_TAC[]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
-
 e (REWRITE_TAC[matA_sub;nmatB_sub;matC_sub;nmatD_sub]);;
-
 
 e (SUBGOAL_THEN
   `vector
@@ -826,24 +802,23 @@ e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
 
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
 
-
 e (SUBGOAL_THEN `vector
   [vector [nb_11 theta_e theta_o Z0e Z0o; nb_12 theta_e theta_o Z0e Z0o];
    vector [nb_21 theta_e theta_o Z0e Z0o; nb_22 theta_e theta_o Z0e Z0o]]:complex^2^2 **
-  columnvector_2x1 (vector [--II3 z; --II4 z]):complex^1^2 =  columnvector_2x1 (vector [nb_11 theta_e theta_o Z0e Z0o * --((II3:complex->complex) z) + nb_12 theta_e theta_o Z0e Z0o * --(II4 z) ; nb_21 theta_e theta_o Z0e Z0o * --(II3 z) + nb_22 theta_e theta_o Z0e Z0o * --(II4 z)])` ASSUME_TAC);;
-
+  columnvector_2x1 (vector [--II3 z; --II4 z]):complex^1^2 =  columnvector_2x1 (vector [nb_11 theta_e theta_o Z0e Z0o * 
+  --((II3:complex->complex) z) + nb_12 theta_e theta_o Z0e Z0o * --(II4 z) ; nb_21 theta_e theta_o Z0e Z0o * --(II3 z) +
+  nb_22 theta_e theta_o Z0e Z0o * --(II4 z)])` ASSUME_TAC);;
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
-
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
 
 e (SUBGOAL_THEN `vector
   [vector [c_11 theta_e theta_o Y0e Y0o; c_12 theta_e theta_o Y0e Y0o];
    vector [c_21 theta_e theta_o Y0e Y0o; c_22 theta_e theta_o Y0e Y0o]]:complex^2^2 **
-  columnvector_2x1 (vector [(V3:complex->complex) z; V4 z]):(complex^1)^2 = columnvector_2x1 (vector [c_11 theta_e theta_o Y0e Y0o * V3 z + c_12 theta_e theta_o Y0e Y0o * V4 z; c_21 theta_e theta_o Y0e Y0o * V3 z + c_22 theta_e theta_o Y0e Y0o * V4 z])` ASSUME_TAC);;
+  columnvector_2x1 (vector [(V3:complex->complex) z; V4 z]):(complex^1)^2 =
+   columnvector_2x1 (vector [c_11 theta_e theta_o Y0e Y0o * V3 z + c_12 theta_e theta_o Y0e Y0o * V4 z; 
+    c_21 theta_e theta_o Y0e Y0o * V3 z + c_22 theta_e theta_o Y0e Y0o * V4 z])` ASSUME_TAC);;
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
@@ -852,14 +827,13 @@ e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
 e (SUBGOAL_THEN `vector
   [vector [nd_11 theta_e theta_o; nd_12 theta_e theta_o];
    vector [nd_21 theta_e theta_o; nd_22 theta_e theta_o]]:complex^2^2 **
-  columnvector_2x1 (vector [--(II3:complex->complex) z; --II4 z]):complex^1^2 = columnvector_2x1 (vector [nd_11 theta_e theta_o * --II3 z + nd_12 theta_e theta_o * --II4 z ; nd_21 theta_e theta_o * --II3 z + nd_22 theta_e theta_o * --II4 z])` ASSUME_TAC);;
-
+  columnvector_2x1 (vector [--(II3:complex->complex) z; --II4 z]):complex^1^2 =
+   columnvector_2x1 (vector [nd_11 theta_e theta_o * --II3 z + nd_12 theta_e theta_o * --II4 z ;
+    nd_21 theta_e theta_o * --II3 z + nd_22 theta_e theta_o * --II4 z])` ASSUME_TAC);;
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
-
 
 e (SUBGOAL_THEN
   `(vector
@@ -901,24 +875,14 @@ e (SUBGOAL_THEN
           nd_22 theta_e theta_o * --(II4 z)])] :(complex^1^2^2))`
 
 ASSUME_TAC);;
-
-
-
 
 e (BMV_ADD_SIMP_TAC[bvector_add;BVECTOR_ADD_COMPONENT;COLUMNVECTOR_2X1_ADD;COLUMNVECTOR_2X1_ADD_2;COLUMNVECTOR_2X1_ADD_4;COMPLEX_ADD_AC ]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
-
 e (ASM_REWRITE_TAC[]);;
+
 e (REWRITE_TAC[a_11;a_12;a_21;a_22;nb_11;nb_12;nb_21;nb_22;c_11;c_12;c_21;c_22;nd_11;nd_12;nd_21;nd_22]);;
-
 e (SIMP_TAC[CVEC_COL_EQ;COLVEC_EQ;CVECTOR2_EQ]);;
-
 e (CONV_TAC COMPLEX_FIELD);;
-
-
-
 
 e (SUBGOAL_THEN
   `vector
@@ -934,14 +898,9 @@ e (SUBGOAL_THEN
       nmatD_sub theta_e theta_o ** columnvector_2x1 (vector [--II3 z; --II4 z])]`
   ASSUME_TAC);;
 
-
 e (BMV_ADD_SIMP_TAC[]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
 e (REWRITE_TAC[matA_sub;nmatB_sub;matC_sub;nmatD_sub]);;
-
-
 
 e (SUBGOAL_THEN
   `vector
@@ -954,29 +913,26 @@ e (SUBGOAL_THEN
   ASSUME_TAC);;
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
-
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
 
 e (SUBGOAL_THEN `vector
   [vector [nb_11 theta_e theta_o Z0e Z0o; nb_12 theta_e theta_o Z0e Z0o];
    vector [nb_21 theta_e theta_o Z0e Z0o; nb_22 theta_e theta_o Z0e Z0o]]:complex^2^2 **
-  columnvector_2x1 (vector [--II3 z; --II4 z]):complex^1^2 =  columnvector_2x1 (vector [nb_11 theta_e theta_o Z0e Z0o * --((II3:complex->complex) z) + nb_12 theta_e theta_o Z0e Z0o * --(II4 z) ; nb_21 theta_e theta_o Z0e Z0o * --(II3 z) + nb_22 theta_e theta_o Z0e Z0o * --(II4 z)])` ASSUME_TAC);;
-
+  columnvector_2x1 (vector [--II3 z; --II4 z]):complex^1^2 =  
+   columnvector_2x1 (vector [nb_11 theta_e theta_o Z0e Z0o * --((II3:complex->complex) z) + nb_12 theta_e theta_o Z0e Z0o * 
+    --(II4 z) ; nb_21 theta_e theta_o Z0e Z0o * --(II3 z) + nb_22 theta_e theta_o Z0e Z0o * --(II4 z)])` ASSUME_TAC);;
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
-
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
 
 e (SUBGOAL_THEN `vector
   [vector [c_11 theta_e theta_o Y0e Y0o; c_12 theta_e theta_o Y0e Y0o];
    vector [c_21 theta_e theta_o Y0e Y0o; c_22 theta_e theta_o Y0e Y0o]]:complex^2^2 **
-  columnvector_2x1 (vector [(V3:complex->complex) z; V4 z]):(complex^1)^2 = columnvector_2x1 (vector [c_11 theta_e theta_o Y0e Y0o * V3 z + c_12 theta_e theta_o Y0e Y0o * V4 z; c_21 theta_e theta_o Y0e Y0o * V3 z + c_22 theta_e theta_o Y0e Y0o * V4 z])` ASSUME_TAC);;
+  columnvector_2x1 (vector [(V3:complex->complex) z; V4 z]):(complex^1)^2 =
+   columnvector_2x1 (vector [c_11 theta_e theta_o Y0e Y0o * V3 z + c_12 theta_e theta_o Y0e Y0o * V4 z; c_21 theta_e theta_o Y0e Y0o * V3 z + 
+    c_22 theta_e theta_o Y0e Y0o * V4 z])` ASSUME_TAC);;
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
@@ -985,14 +941,14 @@ e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
 e (SUBGOAL_THEN `vector
   [vector [nd_11 theta_e theta_o; nd_12 theta_e theta_o];
    vector [nd_21 theta_e theta_o; nd_22 theta_e theta_o]]:complex^2^2 **
-  columnvector_2x1 (vector [--(II3:complex->complex) z; --II4 z]):complex^1^2 = columnvector_2x1 (vector [nd_11 theta_e theta_o * --II3 z + nd_12 theta_e theta_o * --II4 z ; nd_21 theta_e theta_o * --II3 z + nd_22 theta_e theta_o * --II4 z])` ASSUME_TAC);;
+  columnvector_2x1 (vector [--(II3:complex->complex) z; --II4 z]):complex^1^2 = 
+   columnvector_2x1 (vector [nd_11 theta_e theta_o * --II3 z + nd_12 theta_e theta_o * --II4 z ; nd_21 theta_e theta_o * 
+    --II3 z + nd_22 theta_e theta_o * --II4 z])` ASSUME_TAC);;
 
 
 e (REWRITE_TAC[GSYM DOT_CROWVECTOR_CCOLUMNVECTOR_2]);;
 e (REWRITE_TAC[columnvector_2x1] THEN CCOMMON_TAC[CMATRIX_ADD_COMPONENT2]);;
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
-
 
 e (SUBGOAL_THEN
   `(vector
@@ -1034,24 +990,19 @@ e (SUBGOAL_THEN
           nd_22 theta_e theta_o * --(II4 z)])] :(complex^1^2^2))`
 
 ASSUME_TAC);;
-
 
 e (BMV_ADD_SIMP_TAC[bvector_add;BVECTOR_ADD_COMPONENT;COLUMNVECTOR_2X1_ADD;COLUMNVECTOR_2X1_ADD_2;
 COLUMNVECTOR_2X1_ADD_4;COMPLEX_ADD_AC ]);;
-
 e (FIRST_X_ASSUM (fun th -> REWRITE_TAC [th]));;
-
 e (ASM_REWRITE_TAC[]);;
 e (REWRITE_TAC[a_11;a_12;a_21;a_22;nb_11;nb_12;nb_21;nb_22;c_11;c_12;c_21;c_22;nd_11;nd_12;nd_21;nd_22]);;
-
 e (SIMP_TAC[CVEC_COL_EQ;COLVEC_EQ;CVECTOR2_EQ]);;
 
 e (CONV_TAC COMPLEX_FIELD);;
 
-let CHAIN_MATRIX_FINAL = top_thm();;
-
-
-
+(*=================================================================*)
+(*                  End of the Formalization                       *)
+(*=================================================================*)
 
 
 
